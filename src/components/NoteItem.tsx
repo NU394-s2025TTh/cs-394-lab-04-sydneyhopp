@@ -2,6 +2,7 @@
 // src/components/NoteItem.tsx
 import React from 'react';
 
+import { deleteNote } from '../services/noteService';
 import { Note } from '../types/Note';
 
 interface NoteItemProps {
@@ -9,11 +10,24 @@ interface NoteItemProps {
   onEdit?: (note: Note) => void;
 }
 // TODO: delete eslint-disable-next-line when you implement the onEdit handler
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit }) => {
   // TODO: manage state for deleting status and error message
+  const [deleting, setDeleting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
   // TODO: create a function to handle the delete action, which will display a confirmation (window.confirm) and call the deleteNote function from noteService,
   // and update the deleting status and error message accordingly
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this note?');
+    if (!confirmDelete) return;
+
+    setDeleting(true);
+    deleteNote(note.id).catch((err) => {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setDeleting(false);
+    });
+  };
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -70,8 +84,19 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit }) => {
       <div className="note-header">
         <h3>{note.title}</h3>
         <div className="note-actions">
-          <button className="edit-button">Edit</button>
-          <button className="delete-button">{'Delete'}</button>
+          {onEdit && (
+            <button
+              className="edit-button"
+              disabled={deleting}
+              onClick={() => onEdit(note)}
+            >
+              Edit
+            </button>
+          )}
+          {error && <p className="error">{error}</p>}
+          <button className="delete-button" disabled={deleting} onClick={handleDelete}>
+            {deleting ? 'Deleting...' : 'Delete'}
+          </button>
         </div>
       </div>
       <div className="note-content">{note.content}</div>
