@@ -111,7 +111,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
           disabled={saving}
         />
       </div>
-      {error && <p className="error">{error}</p>};
+      {error && <p className="error">{error}</p>}
       <div className="form-actions">
         <button type="submit" disabled={saving}>
           {saving ? 'Saving...' : initialNote ? 'Update Note' : 'Save Note'}
